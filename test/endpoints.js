@@ -197,19 +197,19 @@ test.serial.cb('POST /route : reject after the end of the limit of accepts', fun
   const urlRouteVisitor = '/route'
   servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
     t.falsy(err, 'no error')
+    servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.body, testData.target1.url, 'correct remain url')
       servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
         t.falsy(err, 'no error')
         t.is(res.body, testData.target1.url, 'correct remain url')
         servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
           t.falsy(err, 'no error')
-          t.is(res.body, testData.target1.url, 'correct remain url')
-          servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
-            t.falsy(err, 'no error')
-            t.is(res.body.decision, 'reject', 'correct decision')
-            t.end()
-          }).end(JSON.stringify(testData.visitor1))
+          t.is(res.body.decision, 'reject', 'correct decision')
+          t.end()
         }).end(JSON.stringify(testData.visitor1))
       }).end(JSON.stringify(testData.visitor1))
+    }).end(JSON.stringify(testData.visitor1))
   }).end(JSON.stringify(testData.target1))
 })
 
