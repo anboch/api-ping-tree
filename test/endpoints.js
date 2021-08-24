@@ -19,6 +19,11 @@ test.beforeEach(function (t) {
     publisher: 'abc',
     timestamp: '2018-07-19T10:28:59.513Z'
   }
+  testData.visitor3 = {
+    geoState: 'ny',
+    publisher: 'abc',
+    timestamp: '2018-07-19T12:28:59.513Z'
+  }
   testData.target1 = {
     id: '1',
     url: 'http://exampleUrl1.com',
@@ -151,6 +156,60 @@ test.serial.cb('POST /api/targets/:id : can not update target by nonexist id', f
       t.is(res.body.message, 'Target not found', 'correct message')
       t.end()
     }).end(JSON.stringify(testData.target2))
+  }).end(JSON.stringify(testData.target1))
+})
+
+test.serial.cb('POST /route : filter target by criteria', function (t) {
+  const urlSetTarget = '/api/targets'
+  const urlRouteVisitor = '/route'
+  servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+    servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.body, testData.target1.url, 'correct remain url')
+      servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+        t.falsy(err, 'no error')
+        t.is(res.body.decision, 'reject', 'correct decision')
+        t.end()
+      }).end(JSON.stringify(testData.visitor2))
+    }).end(JSON.stringify(testData.visitor1))
+  }).end(JSON.stringify(testData.target1))
+})
+
+test.serial.cb('POST /route : return target with the highest value', function (t) {
+  const urlSetTarget = '/api/targets'
+  const urlRouteVisitor = '/route'
+  servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+    servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+      t.falsy(err, 'no error')
+      servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+        t.falsy(err, 'no error')
+        t.is(res.body, testData.target2.url, 'correct remain url')
+        t.end()
+      }).end(JSON.stringify(testData.visitor3))
+    }).end(JSON.stringify(testData.target2))
+  }).end(JSON.stringify(testData.target1))
+})
+
+test.serial.cb('POST /route : reject after the end of the limit of accepts', function (t) {
+  const urlSetTarget = '/api/targets'
+  const urlRouteVisitor = '/route'
+  servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+      servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+        t.falsy(err, 'no error')
+        t.is(res.body, testData.target1.url, 'correct remain url')
+        servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+          t.falsy(err, 'no error')
+          t.is(res.body, testData.target1.url, 'correct remain url')
+          servertest(server(), urlRouteVisitor, { encoding: 'json', method: 'POST' }, function (err, res) {
+            t.falsy(err, 'no error')
+            t.is(res.body.decision, 'reject', 'correct decision')
+            t.end()
+          }).end(JSON.stringify(testData.visitor1))
+        }).end(JSON.stringify(testData.visitor1))
+      }).end(JSON.stringify(testData.visitor1))
   }).end(JSON.stringify(testData.target1))
 })
 
