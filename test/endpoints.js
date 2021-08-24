@@ -93,6 +93,33 @@ test.serial.cb('GET /api/targets: get alltargets', function (t) {
   }).end(JSON.stringify(testData.target1))
 })
 
+test.serial.cb('GET /api/targets/:id : get  target by id', function (t) {
+  const urlSetTarget = '/api/targets'
+  const urlGetTarget = `/api/target/${testData.target1.id}`
+  servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+    servertest(server(), urlGetTarget, { encoding: 'json' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.statusCode, 200, 'correct statusCode')
+      t.is(res.body.id, testData.target1.id, 'correct target Id')
+      t.end()
+    })
+  }).end(JSON.stringify(testData.target1))
+})
+
+test.serial.cb('GET /api/targets/:id : can not get a target by nonexist id', function (t) {
+  const urlSetTarget = '/api/targets'
+  const urlGetTargetById = `/api/target/${Number(testData.target1.id) + 1}`
+  servertest(server(), urlSetTarget, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+    servertest(server(), urlGetTargetById, { encoding: 'json' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.statusCode, 404, 'correct statusCode')
+      t.is(res.body.message, 'Target not found', 'correct message')
+      t.end()
+    })
+  }).end(JSON.stringify(testData.target1))
+})
 
 test.serial.cb('healthcheck', function (t) {
   var url = '/health'
