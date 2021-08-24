@@ -67,6 +67,19 @@ test.serial.cb('POST /api/targets: can post a target', function (t) {
   }).end(JSON.stringify(testData.target1))
 })
 
+test.serial.cb('POST /api/targets: can not post a target with the same id', function (t) {
+  const url = '/api/targets'
+  servertest(server(), url, { encoding: 'json', method: 'POST' }, function (err, res) {
+    t.falsy(err, 'no error')
+    servertest(server(), url, { encoding: 'json', method: 'POST' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.statusCode, 403, 'correct statusCode')
+      t.is(res.body.message, 'Target already exists', 'correct message')
+      t.end()
+    }).end(JSON.stringify(testData.target1))
+  }).end(JSON.stringify(testData.target1))
+})
+
 
 test.serial.cb('healthcheck', function (t) {
   var url = '/health'
