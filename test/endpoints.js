@@ -68,7 +68,12 @@ test.serial.cb('POST /api/targets: can post a target', function (t) {
     t.falsy(err, 'no error')
     t.is(res.statusCode, 200, 'correct statusCode')
     t.is(res.body.message, 'SUCCESS', 'message is SUCCESS')
-    t.end()
+    servertest(server(), url, { encoding: 'json' }, function (err, res) {
+      t.falsy(err, 'no error')
+      t.is(res.statusCode, 200, 'correct statusCode')
+      t.is(res.body[0].id, testData.target1.id, 'correct target Id')
+      t.end()
+    })
   }).end(JSON.stringify(testData.target1))
 })
 
